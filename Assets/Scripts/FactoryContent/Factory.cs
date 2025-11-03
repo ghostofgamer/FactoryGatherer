@@ -1,4 +1,5 @@
 using System;
+using ResourcesCounterContent;
 using SOContent;
 using UnityEngine;
 
@@ -36,11 +37,12 @@ namespace FactoryContent
             }
         }
 
+        [ContextMenu("Collect")]
         public void Collect()
         {
             if (_storedAmount > 0)
             {
-                // ResourceManager.Instance.AddResource(_data.Produces, storedAmount);
+                ResourcesCounter.Instance.AddResource(_data.Produces, _storedAmount);
                 Debug.Log($"Собрано {_storedAmount} {_data.Produces.ResourceName} с фабрики {_data.FactoryName}");
                 _storedAmount = 0;
                 ChangeValue?.Invoke(_storedAmount, _data.StorageLimit);

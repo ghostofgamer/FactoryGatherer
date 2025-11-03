@@ -23,11 +23,12 @@ namespace FactoryContent
         private void Start()
         {
             _icon.sprite = _factory.Data.Produces.Icon;
+            ShowInfo(_factory.GetStoredAmount(), _factory.Data.StorageLimit);
         }
 
         private void ShowInfo(int currentAmount, int totalAmount)
         {
-            _storedText.text = $"Склад: {_factory.GetStoredAmount()} / {totalAmount}";
+            _storedText.text = $"{_factory.Data.Produces.ResourceName}: {currentAmount} / {totalAmount}";
         }
     }
 }
