@@ -1,0 +1,56 @@
+using System;
+using SOContent;
+using UnityEngine;
+
+namespace FactoryContent
+{
+    public class Factory : MonoBehaviour
+    {
+        [SerializeField] private FactoryConfig _data;
+
+        private float _timer;
+        private int _storedAmount = 0;
+
+        public event Action<int, int> ChangeValue;
+
+        public FactoryConfig Data => _data;
+
+        private void Update()
+        {
+            Produce();
+        }
+
+        private void Produce()
+        {
+            if (_storedAmount >= _data.StorageLimit)
+                return;
+
+            _timer += Time.deltaTime;
+
+            if (_timer >= 1f)
+            {
+                _storedAmount += _data.ProductionPerSecond;
+                _storedAmount = Mathf.Min(_storedAmount, _data.StorageLimit);
+                ChangeValue?.Invoke(_storedAmount, _data.StorageLimit);
+                _timer = 0f;
+            }
+        }
+
+        public void Collect()
+        {
+            if (_storedAmount > 0)
+            {
+                // ResourceManager.Instance.AddResource(_data.Produces, storedAmount);
+                Debug.Log($"Собрано {_storedAmount} {_data.Produces.ResourceName} с фабрики {_data.FactoryName}");
+                _storedAmount = 0;
+                ChangeValue?.Invoke(_storedAmount, _data.StorageLimit);
+            }
+            else
+            {
+                Debug.Log($"На фабрике {_data.FactoryName} ничего нет.");
+            }
+        }
+
+        public int GetStoredAmount() => _storedAmount;
+    }
+}
