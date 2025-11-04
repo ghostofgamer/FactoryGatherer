@@ -1,3 +1,6 @@
+using System;
+using System.Collections;
+using FactoryContent;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -6,9 +9,15 @@ namespace WorkerContent
     public class WorkerMovement : MonoBehaviour
     {
         [SerializeField] private LayerMask _groundMask;
-        [SerializeField]private Animator _animator;
+        [SerializeField] private Animator _animator;
+        [SerializeField] private float _speedSensiv = 5f;
 
         private NavMeshAgent _agent;
+        private Coroutine _movementCoroutine;
+        private Coroutine _collectCoroutine;
+        private float _currentSpeed;
+        private float _animatorSpeed = 0f;
+        private bool _isCollecting = false;
 
         void Start()
         {
@@ -17,21 +26,36 @@ namespace WorkerContent
 
         void Update()
         {
+            if (_isCollecting)
+                return;
+
             // ПК-клик (для теста в редакторе)
             if (Input.GetMouseButtonDown(0))
             {
                 Debug.Log("Click");
                 MoveToMouseClick();
             }
-
-
+            
             // // На телефоне (тач)
             // if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             // {
             //     MoveToTouch(Input.GetTouch(0).position);
             // }
-            
-            HandleWorkerMovementAnimation();
+
+            /*if (Mathf.Abs(_currentSpeed - _lastAnimatorSpeed) > 0.01f)
+            {
+                Debug.Log(_currentSpeed);
+                _animator.SetFloat("Speed", _currentSpeed, 0.1f, Time.deltaTime);
+                _lastAnimatorSpeed = _currentSpeed;
+            }*/
+
+            _animatorSpeed = Mathf.MoveTowards(_animatorSpeed, _currentSpeed, Time.deltaTime * _speedSensiv);
+
+            // вызываем SetFloat только если реально изменилось значение
+            if (Mathf.Abs(_animatorSpeed - _animator.GetFloat("Speed")) > 0.01f)
+            {
+                _animator.SetFloat("Speed", _animatorSpeed);
+            }
         }
 
         void MoveToMouseClick()
@@ -45,10 +69,25 @@ namespace WorkerContent
             {
                 if (hit.collider.TryGetComponent(out Ground ground))
                 {
-                    _agent.SetDestination(hit.point);
-                    Debug.Log($"Попал в зкемлю: {hit.collider.name} at {hit.point}");
+                    MoveWorkerTo(hit.point, (() => { Debug.Log("Добрался до точки "); }));
+
+                    // Debug.Log($"Попал в зкемлю: {hit.collider.name} at {hit.point}");
                 }
-                    
+
+                if (hit.collider.TryGetComponent(out Factory factory))
+                {
+                    MoveWorkerTo(factory.CollectPosition.position, (() =>
+                    {
+                        if (_collectCoroutine != null)
+                            StopCoroutine(_collectCoroutine);
+
+                        _collectCoroutine = StartCoroutine(Collect(factory));
+                        Debug.Log("Забираем ресурсы ");
+                    }));
+
+                    // Debug.Log($"Попал в зкемлю: {hit.collider.name} at {hit.point}");
+                }
+
                 Debug.Log($"Ray hit: {hit.collider.name} at {hit.point}");
             }
             else
@@ -66,17 +105,54 @@ namespace WorkerContent
                 Debug.Log($"Moving to: {hit.point}");
             }
         }
-        
-        void HandleWorkerMovementAnimation()
+
+
+        public void MoveWorkerTo(Vector3 targetPoint, Action onFinish = null)
         {
             if (_agent == null || _animator == null)
                 return;
-            
+
+            if (_movementCoroutine != null)
+                StopCoroutine(_movementCoroutine);
+
+            _agent.SetDestination(targetPoint);
+            _movementCoroutine = StartCoroutine(WorkerMovementCoroutine(onFinish));
+        }
+
+        private IEnumerator WorkerMovementCoroutine(Action onFinish)
+        {
+            _currentSpeed = 1;
+
+            while (_agent.pathPending || _agent.remainingDistance > _agent.stoppingDistance)
+            {
+                yield return null;
+            }
+
+            _currentSpeed = 0;
+            onFinish?.Invoke();
+            _movementCoroutine = null;
+        }
+
+        private IEnumerator Collect(Factory factory)
+        {
+            _isCollecting = true;
+            _animator.SetBool("Collect",true);
+            yield return new WaitForSeconds(5f);
+            _animator.SetBool("Collect",false);  
+            factory.Collect();
+            _isCollecting = false;
+        }
+
+        /*void HandleWorkerMovementAnimation(Action onFinish = null)
+        {
+            if (_agent == null || _animator == null)
+                return;
+
             float speed = 0f;
 
             if (_agent.pathPending == false && _agent.remainingDistance > _agent.stoppingDistance)
-            { 
-                speed = 1f; 
+            {
+                speed = 1f;
             }
             else
             {
@@ -84,7 +160,16 @@ namespace WorkerContent
                 speed = 0f;
             }
 
+            if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
+            {
+                if (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f)
+                {
+                    if(onFinish!=null)
+                        onFinish?.Invoke();
+                }
+            }
+
             _animator.SetFloat("Speed", speed,0.1f, Time.deltaTime);
-        }
+        }*/
     }
 }

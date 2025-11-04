@@ -8,6 +8,7 @@ namespace FactoryContent
     public class Factory : MonoBehaviour
     {
         [SerializeField] private FactoryConfig _data;
+        [SerializeField] private Transform _collectPosition;
 
         private float _timer;
         private int _storedAmount = 0;
@@ -15,6 +16,7 @@ namespace FactoryContent
         public event Action<int, int> ChangeValue;
 
         public FactoryConfig Data => _data;
+        public Transform CollectPosition => _collectPosition;
 
         private void Update()
         {
