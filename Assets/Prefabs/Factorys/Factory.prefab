@@ -386,6 +386,7 @@ GameObject:
   - component: {fileID: 5662211125391147059}
   - component: {fileID: 3439015809945240968}
   - component: {fileID: 9222858069019319960}
+  - component: {fileID: 7907943595348918620}
   m_Layer: 0
   m_Name: Factory
   m_TagString: Untagged
@@ -438,6 +439,27 @@ MonoBehaviour:
   _factory: {fileID: 3439015809945240968}
   _storedText: {fileID: 541193829728972465}
   _icon: {fileID: 4868154971951485855}
+--- !u!65 &7907943595348918620
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5901195899745512746}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 59.627377, y: 16.942318, z: 38.22287}
+  m_Center: {x: 16.434896, y: 7.971159, z: -1.1379929}
 --- !u!1 &6789975204505734600
 GameObject:
   m_ObjectHideFlags: 0
