@@ -19,6 +19,8 @@ namespace WorkerContent
         private float _animatorSpeed = 0f;
         private bool _isCollecting = false;
 
+        public event Action<Factory, int> ResourcesCollected;
+
         void Start()
         {
             _agent = GetComponent<NavMeshAgent>();
@@ -35,7 +37,7 @@ namespace WorkerContent
                 Debug.Log("Click");
                 MoveToMouseClick();
             }
-            
+
             // // На телефоне (тач)
             // if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             // {
@@ -136,40 +138,12 @@ namespace WorkerContent
         private IEnumerator Collect(Factory factory)
         {
             _isCollecting = true;
-            _animator.SetBool("Collect",true);
+            _animator.SetBool("Collect", true);
             yield return new WaitForSeconds(5f);
-            _animator.SetBool("Collect",false);  
+            _animator.SetBool("Collect", false);
+            ResourcesCollected?.Invoke(factory, factory.StoredAmount);
             factory.Collect();
             _isCollecting = false;
         }
-
-        /*void HandleWorkerMovementAnimation(Action onFinish = null)
-        {
-            if (_agent == null || _animator == null)
-                return;
-
-            float speed = 0f;
-
-            if (_agent.pathPending == false && _agent.remainingDistance > _agent.stoppingDistance)
-            {
-                speed = 1f;
-            }
-            else
-            {
-                // Агент достиг цели
-                speed = 0f;
-            }
-
-            if (!_agent.pathPending && _agent.remainingDistance <= _agent.stoppingDistance)
-            {
-                if (!_agent.hasPath || _agent.velocity.sqrMagnitude == 0f)
-                {
-                    if(onFinish!=null)
-                        onFinish?.Invoke();
-                }
-            }
-
-            _animator.SetFloat("Speed", speed,0.1f, Time.deltaTime);
-        }*/
     }
 }

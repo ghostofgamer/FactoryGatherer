@@ -11,10 +11,10 @@ namespace FactoryContent
         [SerializeField] private Transform _collectPosition;
 
         private float _timer;
-        private int _storedAmount = 0;
-
+        
         public event Action<int, int> ChangeValue;
 
+        public int StoredAmount { get; private set; } = 0;
         public FactoryConfig Data => _data;
         public Transform CollectPosition => _collectPosition;
 
@@ -25,16 +25,16 @@ namespace FactoryContent
 
         private void Produce()
         {
-            if (_storedAmount >= _data.StorageLimit)
+            if (StoredAmount >= _data.StorageLimit)
                 return;
 
             _timer += Time.deltaTime;
 
             if (_timer >= 1f)
             {
-                _storedAmount += _data.ProductionPerSecond;
-                _storedAmount = Mathf.Min(_storedAmount, _data.StorageLimit);
-                ChangeValue?.Invoke(_storedAmount, _data.StorageLimit);
+                StoredAmount += _data.ProductionPerSecond;
+                StoredAmount = Mathf.Min(StoredAmount, _data.StorageLimit);
+                ChangeValue?.Invoke(StoredAmount, _data.StorageLimit);
                 _timer = 0f;
             }
         }
@@ -42,12 +42,12 @@ namespace FactoryContent
         [ContextMenu("Collect")]
         public void Collect()
         {
-            if (_storedAmount > 0)
+            if (StoredAmount > 0)
             {
-                ResourcesCounter.Instance.AddResource(_data.Produces, _storedAmount);
-                Debug.Log($"Собрано {_storedAmount} {_data.Produces.ResourceName} с фабрики {_data.FactoryName}");
-                _storedAmount = 0;
-                ChangeValue?.Invoke(_storedAmount, _data.StorageLimit);
+                ResourcesCounter.Instance.AddResource(_data.Produces, StoredAmount);
+                Debug.Log($"Собрано {StoredAmount} {_data.Produces.ResourceName} с фабрики {_data.FactoryName}");
+                StoredAmount = 0;
+                ChangeValue?.Invoke(StoredAmount, _data.StorageLimit);
             }
             else
             {
@@ -55,6 +55,6 @@ namespace FactoryContent
             }
         }
 
-        public int GetStoredAmount() => _storedAmount;
+        public int GetStoredAmount() => StoredAmount;
     }
 }
