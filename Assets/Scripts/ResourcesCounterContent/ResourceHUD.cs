@@ -12,6 +12,7 @@ namespace ResourcesCounterContent
 
         public void Init()
         {
+            ResourcesCounter.Instance.Init();
             List<ResourceData> resources = ResourcesCounter.Instance.GetAllResources();
 
             foreach (var resource in resources)

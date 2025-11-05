@@ -16,3 +16,4 @@ MonoBehaviour:
   _produces: {fileID: 11400000, guid: 309abf2120195e44691d85ec27b303c2, type: 2}
   _productionPerSecond: 1
   _storageLimit: 50
+  _duration: 5

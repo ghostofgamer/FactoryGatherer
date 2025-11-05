@@ -12,12 +12,12 @@ namespace FactoryContent
 
         private void OnEnable()
         {
-            _factory.ChangeValue += ShowInfo;
+            _factory.ValueChanged += ShowInfo;
         }
 
         private void OnDisable()
         {
-            _factory.ChangeValue -= ShowInfo;
+            _factory.ValueChanged -= ShowInfo;
         }
 
         private void Start()

@@ -3,6 +3,7 @@ using System.Collections;
 using FactoryContent;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 namespace WorkerContent
 {
@@ -62,6 +63,9 @@ namespace WorkerContent
 
         void MoveToMouseClick()
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+            
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
             // Рисуем луч для отладки в Scene View (1000 единиц)
