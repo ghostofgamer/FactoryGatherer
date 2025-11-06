@@ -20,20 +20,10 @@ namespace ResourcesCounterContent
 
         private void Awake()
         {
-            if (Instance == null) Instance = this;
-            else Destroy(gameObject);
-
-            // Init();
-        }
-
-        private void OnEnable()
-        {
-            // _bootstrap.InitCompleted += Init;
-        }
-
-        private void OnDisable()
-        {
-            // _bootstrap.InitCompleted -= Init;
+            if (Instance == null)
+                Instance = this;
+            else
+                Destroy(gameObject);
         }
 
         public void Init()
@@ -67,7 +57,6 @@ namespace ResourcesCounterContent
             _resources[resource] += amount;
             OnResourceChanged?.Invoke(resource, _resources[resource]);
             SaveSystem.SaveResources(_resources);
-            Debug.Log($"Добавлено {amount} {resource.ResourceName}. Всего: {_resources[resource]}");
         }
 
         public bool SpendResource(ResourceData resource, int amount)
@@ -77,7 +66,6 @@ namespace ResourcesCounterContent
 
             _resources[resource] -= amount;
             OnResourceChanged?.Invoke(resource, _resources[resource]);
-            Debug.Log($"Потрачено {amount} {resource.ResourceName}. Осталось: {_resources[resource]}");
             return true;
         }
 

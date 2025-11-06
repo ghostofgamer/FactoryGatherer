@@ -7,9 +7,10 @@ namespace ResourcesCounterContent
 {
     public class ResourcesUIElement : MonoBehaviour
     {
-        private ResourceData _resource;
         [SerializeField] private TMP_Text _amountText;
         [SerializeField] private Image _icon;
+        
+        private ResourceData _resource;
 
         public void Init(ResourceData resource)
         {

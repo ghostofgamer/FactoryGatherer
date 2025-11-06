@@ -15,6 +15,7 @@ namespace UI.Screens
 
         private float _targetFill = 0f;
         private bool _isWork = false;
+        private float _elapsedTime;
 
         private void Awake()
         {
@@ -47,12 +48,12 @@ namespace UI.Screens
 
         public IEnumerator FadeOut()
         {
-            float t = 0f;
+            _elapsedTime = 0f;
 
-            while (t < _fadeDuration)
+            while (_elapsedTime < _fadeDuration)
             {
-                t += Time.deltaTime;
-                _canvasGroup.alpha = Mathf.Lerp(1f, 0f, t / _fadeDuration);
+                _elapsedTime += Time.deltaTime;
+                _canvasGroup.alpha = Mathf.Lerp(1f, 0f, _elapsedTime / _fadeDuration);
                 yield return null;
             }
 

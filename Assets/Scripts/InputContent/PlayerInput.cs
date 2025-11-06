@@ -5,6 +5,11 @@ namespace InputContent
 {
     public class PlayerInput : MonoBehaviour
     {
+        private const string HorizontalAxis = "Horizontal";
+        private const string VerticalAxis = "Vertical";
+        private const string ScrollAxis = "Mouse ScrollWheel";
+        private const string MouseXAxis = "Mouse X";
+
         public event Action<Touch> OnTouchBegan;
         public event Action<Touch> OnTouchMoved;
         public event Action<Touch> OnTouchEnded;
@@ -22,15 +27,14 @@ namespace InputContent
                 HandleKeyboard();
             }
             else
+            {
                 HandleTouch();
+            }
         }
 
         private void HandleKeyboard()
         {
-            float moveX = Input.GetAxis("Horizontal");
-            float moveZ = Input.GetAxis("Vertical");
-
-            Vector2 move = new Vector2(moveX, moveZ);
+            Vector2 move = new Vector2(Input.GetAxis(HorizontalAxis), Input.GetAxis(VerticalAxis));
 
             if (move.sqrMagnitude > 0.001f)
                 OnKeyboardMove?.Invoke(move);
@@ -38,10 +42,8 @@ namespace InputContent
 
         private void HandleMouse()
         {
-            float scroll = Input.GetAxis("Mouse ScrollWheel");
-
-            if (Mathf.Abs(scroll) > 0.001f)
-                OnMouseZoom?.Invoke(scroll);
+            if (Mathf.Abs(Input.GetAxis(ScrollAxis)) > 0.001f)
+                OnMouseZoom?.Invoke(Input.GetAxis(ScrollAxis));
 
             if (Input.GetMouseButtonUp(0))
             {
@@ -52,7 +54,7 @@ namespace InputContent
             }
 
             if (Input.GetMouseButton(1))
-                OnMouseRotate?.Invoke(Input.GetAxis("Mouse X"));
+                OnMouseRotate?.Invoke(Input.GetAxis(MouseXAxis));
         }
 
         private void HandleTouch()

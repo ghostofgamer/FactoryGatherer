@@ -52,20 +52,16 @@ public class CameraController : MonoBehaviour
     {
         Vector3 forward = transform.forward;
         Vector3 right = transform.right;
-
         forward.y = 0f;
         right.y = 0f;
         forward.Normalize();
         right.Normalize();
-
         Vector3 moveDir = forward * dir.y + right * dir.x;
-        float speed = _targetSpeed;
-        transform.position += moveDir * speed * Time.deltaTime;
-
+        transform.position += moveDir * _targetSpeed * Time.deltaTime;
         ClampPosition();
     }
 
-    void HandleZoom(float value)
+    private void HandleZoom(float value)
     {
         if (Mathf.Abs(value) > 0.001f)
         {
@@ -76,7 +72,6 @@ public class CameraController : MonoBehaviour
         }
     }
     
-
     private void OnPanInput(Vector2 delta)
     {
         Vector3 move = new Vector3(-delta.x, 0, -delta.y) * _targetSpeed;
@@ -93,7 +88,7 @@ public class CameraController : MonoBehaviour
         transform.rotation = Quaternion.Euler(euler);
     }
 
-    void ClampPosition()
+    private void ClampPosition()
     {
         Vector3 pos = transform.position;
         pos.x = Mathf.Clamp(pos.x, _minX, _maxX);

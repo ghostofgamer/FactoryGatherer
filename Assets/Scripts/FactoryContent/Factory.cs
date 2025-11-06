@@ -16,6 +16,7 @@ namespace FactoryContent
         private bool _isWork = false;
 
         public event Action<int, int> ValueChanged;
+        public event Action Initialized;
 
         public int StoredAmount { get; private set; } = 0;
         public FactoryConfig Data => _data;
@@ -35,17 +36,31 @@ namespace FactoryContent
             var data = SaveSystem.GetFactory(_id);
 
             if (data != null)
-            {
                 StoredAmount = data.StoredAmount;
+            else
+                Debug.Log("No factory found");
+            
+            Initialized?.Invoke();
+            ChangeValue();
+            _isWork = true;
+        }
+
+        [ContextMenu("Collect")]
+        public void Collect()
+        {
+            if (StoredAmount > 0)
+            {
+                ResourcesCounter.Instance.AddResource(_data.Produces, StoredAmount);
+                StoredAmount = 0;
                 ChangeValue();
             }
             else
             {
-                Debug.Log("No factory found");
+                Debug.Log($"На фабрике {_data.FactoryName} ничего нет.");
             }
-
-            _isWork = true;
         }
+
+        public int GetStoredAmount() => StoredAmount;
 
         private void Produce()
         {
@@ -63,28 +78,10 @@ namespace FactoryContent
             }
         }
 
-        [ContextMenu("Collect")]
-        public void Collect()
-        {
-            if (StoredAmount > 0)
-            {
-                ResourcesCounter.Instance.AddResource(_data.Produces, StoredAmount);
-                Debug.Log($"Собрано {StoredAmount} {_data.Produces.ResourceName} с фабрики {_data.FactoryName}");
-                StoredAmount = 0;
-                ChangeValue();
-            }
-            else
-            {
-                Debug.Log($"На фабрике {_data.FactoryName} ничего нет.");
-            }
-        }
-
         private void ChangeValue()
         {
             SaveSystem.SaveFactory(this);
             ValueChanged?.Invoke(StoredAmount, _data.StorageLimit);
         }
-
-        public int GetStoredAmount() => StoredAmount;
     }
 }

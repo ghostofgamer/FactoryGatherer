@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace InputContent
@@ -28,12 +27,10 @@ namespace InputContent
             _playerInput.OnTouchBegan += TouchBegan;
             _playerInput.OnTouchMoved += TouchMoved;
             _playerInput.OnTouchEnded += TouchEnded;
-
             _playerInput.OnMousePan += MousePan;
             _playerInput.OnMouseRotate += MouseRotate;
             _playerInput.OnMouseZoom += MouseZoom;
             _playerInput.OnMouseClick += MouseClick;
-
             _playerInput.OnKeyboardMove += KeyboardMove;
         }
 
@@ -42,27 +39,26 @@ namespace InputContent
             _playerInput.OnTouchBegan -= TouchBegan;
             _playerInput.OnTouchMoved -= TouchMoved;
             _playerInput.OnTouchEnded -= TouchEnded;
-
             _playerInput.OnMousePan -= MousePan;
             _playerInput.OnMouseRotate -= MouseRotate;
             _playerInput.OnMouseZoom -= MouseZoom;
             _playerInput.OnMouseClick -= MouseClick;
-
             _playerInput.OnKeyboardMove -= KeyboardMove;
         }
 
         private void TouchBegan(Touch touch)
         {
-            if (Input.touchCount == 1)
+            switch (Input.touchCount)
             {
-                _touchStartPos = touch.position;
-                _isPanning = false;
-            }
-            else if (Input.touchCount == 2)
-            {
-                _lastTouch0 = Input.GetTouch(0).position;
-                _lastTouch1 = Input.GetTouch(1).position;
-                _isRotating = true;
+                case 1:
+                    _touchStartPos = touch.position;
+                    _isPanning = false;
+                    break;
+                case 2:
+                    _lastTouch0 = Input.GetTouch(0).position;
+                    _lastTouch1 = Input.GetTouch(1).position;
+                    _isRotating = true;
+                    break;
             }
         }
 
@@ -80,17 +76,11 @@ namespace InputContent
             }
             else if (Input.touchCount == 2)
             {
-                Touch t0 = Input.GetTouch(0);
-                Touch t1 = Input.GetTouch(1);
-
                 Vector2 prevDir = _lastTouch1 - _lastTouch0;
-                Vector2 currDir = t1.position - t0.position;
-
-                float angleDelta = Vector2.SignedAngle(prevDir, currDir);
-                OnRotate?.Invoke(angleDelta * _rotationSensitivity);
-
-                _lastTouch0 = t0.position;
-                _lastTouch1 = t1.position;
+                Vector2 currDir = Input.GetTouch(1).position - Input.GetTouch(0).position;
+                OnRotate?.Invoke(Vector2.SignedAngle(prevDir, currDir) * _rotationSensitivity);
+                _lastTouch0 = Input.GetTouch(0).position;
+                _lastTouch1 = Input.GetTouch(1).position;
             }
         }
 

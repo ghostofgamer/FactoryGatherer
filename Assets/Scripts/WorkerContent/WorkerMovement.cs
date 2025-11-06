@@ -10,10 +10,8 @@ namespace WorkerContent
     public class WorkerMovement : MonoBehaviour
     {
         [SerializeField] private InputHandler _inputHandler;
-        [SerializeField] private LayerMask _groundMask;
-        [SerializeField] private Animator _animator;
+        [SerializeField] private WorkerAnimation _workerAnimation;
         [SerializeField] private float _speedSensiv = 5f;
-        [SerializeField] private CameraController _cameraController;
 
         private NavMeshAgent _agent;
         private Coroutine _movementCoroutine;
@@ -21,6 +19,7 @@ namespace WorkerContent
         private float _currentSpeed;
         private float _animatorSpeed = 0f;
         private bool _isCollecting = false;
+        private WaitForSeconds _collectWait = new WaitForSeconds(5f);
 
         public event Action<Factory, int> ResourcesCollected;
 
@@ -46,8 +45,8 @@ namespace WorkerContent
 
             _animatorSpeed = Mathf.MoveTowards(_animatorSpeed, _currentSpeed, Time.deltaTime * _speedSensiv);
 
-            if (Mathf.Abs(_animatorSpeed - _animator.GetFloat("Speed")) > 0.01f)
-                _animator.SetFloat("Speed", _animatorSpeed);
+            if (Mathf.Abs(_animatorSpeed - _workerAnimation.GetSpeed()) > 0.01f)
+                _workerAnimation.PlayMove(_animatorSpeed);
         }
 
         private void HandleTap(RaycastHit hit)
@@ -56,10 +55,7 @@ namespace WorkerContent
                 return;
 
             if (hit.collider.TryGetComponent(out Ground ground))
-            {
-                Debug.Log("Ground");
                 MoveWorkerTo(hit.point, () => Debug.Log("Добрался до точки"));
-            }
 
             if (hit.collider.TryGetComponent(out Factory factory))
             {
@@ -69,14 +65,13 @@ namespace WorkerContent
                         StopCoroutine(_collectCoroutine);
 
                     _collectCoroutine = StartCoroutine(Collect(factory));
-                    Debug.Log("Забираем ресурсы");
                 });
             }
         }
 
-        public void MoveWorkerTo(Vector3 targetPoint, Action onFinish = null)
+        private void MoveWorkerTo(Vector3 targetPoint, Action onFinish = null)
         {
-            if (_agent == null || _animator == null)
+            if (_agent == null)
                 return;
 
             if (_movementCoroutine != null)
@@ -103,9 +98,9 @@ namespace WorkerContent
         private IEnumerator Collect(Factory factory)
         {
             _isCollecting = true;
-            _animator.SetBool("Collect", true);
-            yield return new WaitForSeconds(5f);
-            _animator.SetBool("Collect", false);
+            _workerAnimation.PlayCollect(true);
+            yield return _collectWait;
+            _workerAnimation.PlayCollect(false);
             ResourcesCollected?.Invoke(factory, factory.StoredAmount);
             factory.Collect();
             _isCollecting = false;

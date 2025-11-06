@@ -13,17 +13,18 @@ namespace FactoryContent
         private void OnEnable()
         {
             _factory.ValueChanged += ShowInfo;
+            _factory.Initialized += Init;
         }
 
         private void OnDisable()
         {
             _factory.ValueChanged -= ShowInfo;
+            _factory.Initialized -= Init;
         }
 
-        private void Start()
+        private void Init()
         {
             _icon.sprite = _factory.Data.Produces.Icon;
-            ShowInfo(_factory.GetStoredAmount(), _factory.Data.StorageLimit);
         }
 
         private void ShowInfo(int currentAmount, int totalAmount)
