@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace InputContent
 {
@@ -42,6 +43,9 @@ namespace InputContent
 
         private void HandleMouse()
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+            
             if (Mathf.Abs(Input.GetAxis(ScrollAxis)) > 0.001f)
                 OnMouseZoom?.Invoke(Input.GetAxis(ScrollAxis));
 
@@ -59,6 +63,9 @@ namespace InputContent
 
         private void HandleTouch()
         {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+            
             for (int i = 0; i < Input.touchCount; i++)
             {
                 Touch touch = Input.GetTouch(i);
