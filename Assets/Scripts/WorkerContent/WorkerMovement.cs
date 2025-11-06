@@ -1,17 +1,19 @@
 using System;
 using System.Collections;
 using FactoryContent;
+using InputContent;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems;
 
 namespace WorkerContent
 {
     public class WorkerMovement : MonoBehaviour
     {
+        [SerializeField] private InputHandler _inputHandler;
         [SerializeField] private LayerMask _groundMask;
         [SerializeField] private Animator _animator;
         [SerializeField] private float _speedSensiv = 5f;
+        [SerializeField] private CameraController _cameraController;
 
         private NavMeshAgent _agent;
         private Coroutine _movementCoroutine;
@@ -22,96 +24,55 @@ namespace WorkerContent
 
         public event Action<Factory, int> ResourcesCollected;
 
-        void Start()
+        private void OnEnable()
+        {
+            _inputHandler.OnTap += HandleTap;
+        }
+
+        private void OnDisable()
+        {
+            _inputHandler.OnTap -= HandleTap;
+        }
+
+        private void Start()
         {
             _agent = GetComponent<NavMeshAgent>();
         }
 
-        void Update()
+        private void Update()
         {
             if (_isCollecting)
                 return;
 
-            // ПК-клик (для теста в редакторе)
-            if (Input.GetMouseButtonDown(0))
-            {
-                Debug.Log("Click");
-                MoveToMouseClick();
-            }
-
-            // // На телефоне (тач)
-            // if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-            // {
-            //     MoveToTouch(Input.GetTouch(0).position);
-            // }
-
-            /*if (Mathf.Abs(_currentSpeed - _lastAnimatorSpeed) > 0.01f)
-            {
-                Debug.Log(_currentSpeed);
-                _animator.SetFloat("Speed", _currentSpeed, 0.1f, Time.deltaTime);
-                _lastAnimatorSpeed = _currentSpeed;
-            }*/
-
             _animatorSpeed = Mathf.MoveTowards(_animatorSpeed, _currentSpeed, Time.deltaTime * _speedSensiv);
 
-            // вызываем SetFloat только если реально изменилось значение
             if (Mathf.Abs(_animatorSpeed - _animator.GetFloat("Speed")) > 0.01f)
-            {
                 _animator.SetFloat("Speed", _animatorSpeed);
-            }
         }
 
-        void MoveToMouseClick()
+        private void HandleTap(RaycastHit hit)
         {
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            if (_isCollecting)
                 return;
-            
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            // Рисуем луч для отладки в Scene View (1000 единиц)
-            Debug.DrawRay(ray.origin, ray.direction * 1000f, Color.red, 2f);
-
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity))
+            if (hit.collider.TryGetComponent(out Ground ground))
             {
-                if (hit.collider.TryGetComponent(out Ground ground))
-                {
-                    MoveWorkerTo(hit.point, (() => { Debug.Log("Добрался до точки "); }));
-
-                    // Debug.Log($"Попал в зкемлю: {hit.collider.name} at {hit.point}");
-                }
-
-                if (hit.collider.TryGetComponent(out Factory factory))
-                {
-                    MoveWorkerTo(factory.CollectPosition.position, (() =>
-                    {
-                        if (_collectCoroutine != null)
-                            StopCoroutine(_collectCoroutine);
-
-                        _collectCoroutine = StartCoroutine(Collect(factory));
-                        Debug.Log("Забираем ресурсы ");
-                    }));
-
-                    // Debug.Log($"Попал в зкемлю: {hit.collider.name} at {hit.point}");
-                }
-
-                Debug.Log($"Ray hit: {hit.collider.name} at {hit.point}");
+                Debug.Log("Ground");
+                MoveWorkerTo(hit.point, () => Debug.Log("Добрался до точки"));
             }
-            else
+
+            if (hit.collider.TryGetComponent(out Factory factory))
             {
-                Debug.Log("Raycast did NOT hit anything");
+                MoveWorkerTo(factory.CollectPosition.position, () =>
+                {
+                    if (_collectCoroutine != null)
+                        StopCoroutine(_collectCoroutine);
+
+                    _collectCoroutine = StartCoroutine(Collect(factory));
+                    Debug.Log("Забираем ресурсы");
+                });
             }
         }
-
-        void MoveToTouch(Vector2 touchPos)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(touchPos);
-            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, _groundMask))
-            {
-                _agent.SetDestination(hit.point);
-                Debug.Log($"Moving to: {hit.point}");
-            }
-        }
-
 
         public void MoveWorkerTo(Vector3 targetPoint, Action onFinish = null)
         {

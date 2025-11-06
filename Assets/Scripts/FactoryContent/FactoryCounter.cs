@@ -1,3 +1,4 @@
+using Initialization;
 using UnityEngine;
 
 namespace FactoryContent

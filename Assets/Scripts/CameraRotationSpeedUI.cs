@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,23 +11,13 @@ public class CameraRotationSpeedUI : MonoBehaviour
     {
         if (rotationSpeedSlider != null)
         {
-            
-            rotationSpeedSlider.value = cameraController.RotationSpeed;
-            porogSlider.value = cameraController.porog;
-           
             rotationSpeedSlider.onValueChanged.AddListener(OnSliderChanged);
-            porogSlider.onValueChanged.AddListener(OnPorogChanged);
         }
     }
 
     private void OnSliderChanged(float value)
     {
-        cameraController.RotationSpeed = value;
-    }
-
-    private void OnPorogChanged(float value)
-    {
-        cameraController.porog = value;
+      
     }
 
     private void OnDestroy()
